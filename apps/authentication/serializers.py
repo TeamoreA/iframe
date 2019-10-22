@@ -77,7 +77,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs.get('password') != attrs.get('confirm_password'):
-            raise serializers.ValidationError("Those passwords don't match.")
+            raise serializers.ValidationError("Passwords do not match.")
         return attrs
 
 
@@ -85,13 +85,13 @@ class LoginSerializer(serializers.Serializer):
     """The class to serialize login details"""
     email = serializers.CharField(
         max_length=255, required=True, error_messages={
-            'required': 'Your email address is required to log in.'
+            'required': 'Email is required.'
         }
     )
     username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(
         max_length=128, write_only=True, required=True, error_messages={
-            'required': 'Kindly enter your password to log in.'
+            'required': 'Enter your password to be logged in.'
         }
     )
 
@@ -102,12 +102,9 @@ class LoginSerializer(serializers.Serializer):
         email = data.get('email', None)
         password = data.get('password', None)
         user = authenticate(email=email, password=password)
-        # user = get_user_model().objects.get(email=email)
-        # import pdb; pdb.set_trace()
         if user is None:
             raise serializers.ValidationError(
-                'Either your email or password isn’t right. Double check '
-                'them'
+                "Your email or password is invalid"
             )
         user_data = {
             "email": user.email,
