@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
+    'rest_framework',
     'rest_framework.authtoken',
-    'apps.authentication'
+    'apps.authentication',
+    'apps.checkout'
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
