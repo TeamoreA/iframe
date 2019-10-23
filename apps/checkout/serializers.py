@@ -15,10 +15,10 @@ from .models import UserCheckout
 
 
 class AddCheckoutSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    fullName = serializers.CharField(required=True)
-    creditCardNumber = serializers.CharField(required=True,
-                                             validators=[
+    user_id = serializers.IntegerField(required=True)
+    full_name = serializers.CharField(required=True)
+    credit_card_number = serializers.CharField(required=True,
+                                            validators=[
                                                  UniqueValidator(
                                                      queryset=UserCheckout.objects.all(),
                                                      message=(
@@ -26,9 +26,9 @@ class AddCheckoutSerializer(serializers.ModelSerializer):
                                                      )
                                                  )
                                              ])
-    cvvNumber = serializers.IntegerField(required=True)
-    expirationYear = serializers.IntegerField(required=True)
-    expirationMonth = serializers.IntegerField(required=True)
+    cvv_number = serializers.IntegerField(required=True)
+    expiration_year = serializers.IntegerField(required=True)
+    expiration_month = serializers.IntegerField(required=True)
 
     class Meta:
         model = UserCheckout
@@ -40,7 +40,7 @@ class AddCheckoutSerializer(serializers.ModelSerializer):
         #     Expiry year Validation
         # """
 
-        if data['expirationYear'] < datetime.now().year:
+        if data['expiration_year'] < datetime.now().year:
             raise serializers.ValidationError(
                 {"message": "The year entered indicates card has expired"}
             )
@@ -49,7 +49,7 @@ class AddCheckoutSerializer(serializers.ModelSerializer):
         #     Month validation
         # """
 
-        elif data['expirationMonth'] not in range(1, 13):
+        elif data['expiration_month'] not in range(1, 13):
             raise serializers.ValidationError(
                 {"message": "Enter a valid month between 1 to 12 as per the card"}
             )
@@ -68,7 +68,7 @@ class AddCheckoutSerializer(serializers.ModelSerializer):
             9 . If not 8 above raise card validation error
         """
 
-        card_num = data['creditCardNumber']
+        card_num = data['credit_card_number']
         card_num = list(map(int, str(card_num)))
 
         even_indexes = card_num[0::2]

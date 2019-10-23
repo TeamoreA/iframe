@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from apps.authentication.serializers import RegistrationSerializer, LoginSerializer
 from django.contrib.auth.signals import user_logged_in
 from .helpers import success_response
+from .backends import generate_api_token
 
 
 class RegistrationAPIView(GenericAPIView):
@@ -58,6 +59,25 @@ class LoginAPIView(GenericAPIView):
         }
         return success_response(
             'Login successful',
+            data=response_data,
+            status_code=status.HTTP_200_OK
+        )
+
+
+class ApiTokenAPIView(GenericAPIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, **kwargs):
+        user_data = dict()
+        user_data["id"] = request.user.id
+        user_data["username"] = request.user.username
+        api_token = generate_api_token(user_data)
+        response_data = {
+            "username": user_data['username'],
+            "api_token": api_token
+        }
+        return success_response(
+            'API token obtained successfully',
             data=response_data,
             status_code=status.HTTP_200_OK
         )

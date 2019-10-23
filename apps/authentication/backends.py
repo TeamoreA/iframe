@@ -45,3 +45,30 @@ class JWTAuthentication(TokenAuthentication):
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('Token has expired')
         return user, payload
+
+
+# class GenerateApiToken():
+#     """class to generate the API token that doesn't expire"""
+secret_key = settings.SECRET_KEY + "_api_token"
+
+
+def generate_api_token(userdata):
+    """
+    generate JWT token from user_data
+    """
+    token = jwt.encode({
+        'userdata': userdata,
+        'iat': datetime.datetime.utcnow()
+    }, secret_key)
+    # return UTF-8 token
+    return token.decode('utf-8')
+
+
+def authenticate_credentials(api_token):
+    try:
+        payload = jwt.decode(api_token, secret_key)
+        id = payload['userdata']['id']
+        user = get_user_model().objects.get(pk=id)
+    except (jwt.DecodeError, get_user_model().DoesNotExist):
+        raise AuthenticationFailed('Invalid api token')
+    return user
