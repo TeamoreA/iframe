@@ -14,6 +14,6 @@ def success_response(message, data, **kwargs):
 
 def error_response(message, **kwargs):
     return Response({
-         "status": "error",
-         "message": message,
-     }, kwargs.get('status_code'))
+        "status": "error",
+        "message": message,
+    }, kwargs.get('status_code'))

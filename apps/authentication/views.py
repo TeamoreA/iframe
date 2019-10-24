@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
 from django.contrib.auth import get_user_model
 from apps.authentication.serializers import RegistrationSerializer, LoginSerializer
@@ -65,7 +65,7 @@ class LoginAPIView(GenericAPIView):
 
 
 class ApiTokenAPIView(GenericAPIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, **kwargs):
         user_data = dict()
