@@ -1,8 +1,13 @@
+from datetime import datetime
 # django imports
+from django.db.models import Count
 
 # restframe work imports
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    RetrieveAPIView
+)
 
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -17,6 +22,7 @@ from .checkout_utility import (
     FortnoxInvoice
 )
 
+from .models import UserPurchase
 
 """
     View to post user checkout data
@@ -74,7 +80,6 @@ class UserPurchaseInvoiceView(CreateAPIView):
         fortnox_response = FortnoxInvoice().post_invoice_to_fortnox(request)
         invoice_data = eval(fortnox_response['message']['body'])
 
-        # import pdb; pdb.set_trace()
         if fortnox_response['message']['status'] == '201':
             # set invoice number to the one sent to fortnox
             request['request'].data['invoice_number'] = fortnox_response['invoice_number']
@@ -106,3 +111,22 @@ class UserPurchaseInvoiceView(CreateAPIView):
             "status": fortnox_response['message']['status'],
             "data": fortnox_response['message']
         })
+
+
+class CheckoutAnalyticsVew(RetrieveAPIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, request, *args, **kwargs):
+        if kwargs.get('selected_year') is None or kwargs.get('selected_year') <= 0:
+            return Response({
+                "message": "Provide a valid year"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        monthlist = UserPurchase.objects.filter(date_of_purchase__year=kwargs.get('selected_year')).values_list('date_of_purchase__month').annotate(total_item=Count('date_of_purchase'))
+
+        response_message = {
+            "message": "Successfully obtained metrics for year: {year}".format(year=kwargs.get('selected_year')),
+            "data": monthlist
+        }
+
+        return Response(response_message, status=status.HTTP_200_OK)

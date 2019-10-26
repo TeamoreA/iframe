@@ -25,7 +25,6 @@ def append_user_id(request):
 
 def get_invoice_number(data):
 
-    # import pdb; pdb.set_trace()
     highest_invoice_number = UserPurchase.objects.all().aggregate(Max('invoice_number'))['invoice_number__max']
     if highest_invoice_number is None:
         highest_invoice_number = 1
