@@ -6,7 +6,10 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 # Local imports
-from .models import UserCheckout
+from .models import (
+    UserCheckout,
+    UserPurchase
+)
 
 
 """
@@ -97,3 +100,34 @@ class AddCheckoutSerializer(serializers.ModelSerializer):
         user_checkout = UserCheckout(**data)
         user_checkout.save()
         return user_checkout
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(required=True)
+    amount = serializers.FloatField(required=True)
+    quantity = serializers.IntegerField(required=True)
+    currency_code = serializers.CharField(required=True)
+
+    class Meta:
+        model = UserPurchase
+        fields = "__all__"
+
+    def validate(self, data):
+        if data['quantity'] <= 0:
+            raise serializers.ValidationError(
+                'The quantity should be greater than zero'
+            )
+        elif data['currency_code'] != 'SEK':
+            raise serializers.ValidationError(
+                'Purchase should only be made with Swedish Krona (SEK)'
+            )
+        elif type(data['quantity']) is not int:
+            raise serializers.ValidationError(
+                'Value should be an integer eg. 1'
+            )
+        return data
+
+    def create(self, data):
+        user_purchase = UserPurchase(**data)
+        user_purchase.save()
+        return user_purchase
